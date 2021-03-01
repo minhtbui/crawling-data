@@ -94,13 +94,13 @@ def adjust_product(product):
     for field in flatten_field:
         if field in e:
             e[field] = json.dumps(
-                e[field], ensure_ascii=False).replace('\n', '')
+                e[field], ensure_ascii=False)
 
     return e
 
 
 def save_product_list(adjsust_product_list):
-    file = open(product_file, "w")
+    file = open(product_file, "w", encoding="utf-8")
     csv_writer = csv.writer(file)
 
     count = 0
@@ -131,8 +131,8 @@ product_list = crawl_product(book_ids)
 # save product detail for backup
 save_raw_product(product_list)
 
-# product_list = load_raw_product()
-# # flatten detail before converting to csv
-# adjsust_product_list = [adjust_product(p) for p in product_list]
-# # save product to csv
-# save_product_list(adjsust_product_list)
+product_list = load_raw_product()
+# flatten detail before converting to csv
+adjsust_product_list = [adjust_product(p) for p in product_list]
+# save product to csv
+save_product_list(adjsust_product_list)
