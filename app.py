@@ -3,22 +3,23 @@ import json
 import requests
 import time
 
-# 4 - business & eco products
-# 27 - biography & memoir products
+# 9 - fiction & literature (2876)
+# 4 - business & eco products (789)
+# 27 - biography & memoir products (384)
 # 320 - english products
 # 8322 - all books
 # 1815 - digital devices
 # 1801 = camera
 # 1846 = laptop - pc
 
-product_page_url = "https://tiki.vn/api/v2/products?category=320&page={}&limit=250&offset=0"
+product_page_url = "https://tiki.vn/api/v2/products?category=27&page={}&limit=300"
 product_url = "https://tiki.vn/api/v2/products/{}"
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36'}
-product_ids_file = "./english-book-id.txt"
-product_raw_data_file = "./english-book.txt"
-product_file = "./english-book-file.csv"
+product_ids_file = "./bio-memoir-english-book-id.txt"
+product_raw_data_file = "./bio-memoir-english-book.txt"
+product_file = "./bio-memoir-english-file.csv"
 
 
 def jprint(obj):
@@ -33,15 +34,17 @@ def crawl_product_id():
     page = 1
     while (True):
         print("Crawl page: ", page)
+        print('URL: ', product_page_url.format(page))
 
         response = requests.get(product_page_url.format(page), headers=headers)
 
-        products = response.json()['data']
+        results = response.json()
 
-        print('products', len(products))
-        if (len(products) < 1):
+        products = results['data']
+
+        if (len(products) == 0):
             # if(page == 2):
-            print('No more data !!! End here.')
+            print(len(products), 'data !!! End here.')
             break
 
         for product in products:
@@ -49,7 +52,7 @@ def crawl_product_id():
 
         print("No. IDs: ", len(product_ids))
 
-        if (len(product_ids) == 10000):
+        if (len(product_ids) > results['paging']['total']):
             # if(page == 2):
             print('No more data !!! End here.')
             break
@@ -151,7 +154,7 @@ save_product_id(product_ids)
 product_list = crawl_product(product_ids)
 
 # # save product detail for backup
-# save_raw_product(product_list)
+save_raw_product(product_list)
 
 # product_list = load_raw_product()
 # # flatten detail before converting to csv
