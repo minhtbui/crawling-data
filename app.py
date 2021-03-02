@@ -1,15 +1,24 @@
 import csv
 import json
 import requests
+import time
 
-book_page_url = "https://tiki.vn/api/v2/products?category=320&urlKey=business-economics&limit=300&page={}"
+# 4 - business & eco products
+# 27 - biography & memoir products
+# 320 - english products
+# 8322 - all books
+# 1815 - digital devices
+# 1801 = camera
+# 1846 = laptop - pc
+
+product_page_url = "https://tiki.vn/api/v2/products?category=320&page={}&limit=250&offset=0"
 product_url = "https://tiki.vn/api/v2/products/{}"
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36'}
-book_ids_file = "./book-id.txt"
-book_data_file = "./book.txt"
-product_file = "./product-file.csv"
+product_ids_file = "./english-book-id.txt"
+product_raw_data_file = "./english-book.txt"
+product_file = "./english-book-file.csv"
 
 
 def jprint(obj):
@@ -19,63 +28,75 @@ def jprint(obj):
 
 
 def crawl_product_id():
-    book_ids = []
+    product_ids = []
     i = 0
     page = 1
     while (True):
         print("Crawl page: ", page)
 
-        response = requests.get(book_page_url.format(page), headers=headers)
+        response = requests.get(product_page_url.format(page), headers=headers)
 
-        books = response.json()['data']
+        products = response.json()['data']
 
-        if (len(books) == 0):
+        print('products', len(products))
+        if (len(products) < 1):
             # if(page == 2):
             print('No more data !!! End here.')
             break
 
-        for book in books:
-            book_ids.append(str(book['id']))
+        for product in products:
+            product_ids.append(str(product['id']))
 
-        print("No. Books ID: ", len(book_ids))
+        print("No. IDs: ", len(product_ids))
+
+        if (len(product_ids) == 10000):
+            # if(page == 2):
+            print('No more data !!! End here.')
+            break
 
         i += 1
         page += 1
-    return book_ids, i
+    return product_ids, i
 
 
-def save_product_id(book_ids=[]):
-    file = open(book_ids_file, "w+")
-    file.write('\n'.join(book_ids))
+def save_product_id(product_ids=[]):
+    file = open(product_ids_file, "w+")
+    file.write('\n'.join(product_ids))
     file.close()
-    print("Save file: ", book_ids_file)
+    print("Save file: ", product_ids_file)
 
 
-def crawl_product(book_ids=[]):
-    book_detail_list = []
-    for book_id in book_ids:
-        response = requests.get(product_url.format(book_id), headers=headers)
+def load_product_ids():
+    file = open(product_ids_file, "r")
+    return file.readlines()
+
+
+def crawl_product(product_ids=[]):
+    product_detail_list = []
+    for product_id in product_ids:
+        response = requests.get(
+            product_url.format(product_id), headers=headers)
 
         if (response.status_code == 200):
-            book_detail_list.append(response.text)
-            print("Crawl product: ", book_id,
+            product_detail_list.append(response.text)
+            print("Crawl product: ", product_id,
                   ": ", response.status_code)
         else:
-            print("{'\033[93m'}Crawl product: ", book_id,
+            print("Crawl product: ", product_id,
                   "failed : ", response.status_code)
-            break
-    return book_detail_list
+
+    return product_detail_list
 
 
 def save_raw_product(product_detail_list=[]):
-    file = open(book_data_file, "w+")
+    file = open(product_raw_data_file, "w+")
     file.write("\n".join(product_detail_list))
     file.close()
-    print("Save file: ", book_data_file)
+    print("Save file: ", product_raw_data_file)
 
 
 def load_raw_product():
-    file = open(book_data_file, "r")
+    file = open(product_raw_data_file, "r")
     return file.readlines()
 
 
@@ -116,23 +137,24 @@ def save_product_list(adjsust_product_list):
     print("Save file: ", product_file)
 
 
-# crawl book id
-book_ids, page = crawl_product_id()
+# crawl product id
+product_ids, page = crawl_product_id()
 
 print("No. Page: ", page)
-print("Total Books: ", len(book_ids))
+print("Total Products: ", len(product_ids))
 
-# save book ids for backup
-save_product_id(book_ids)
+# save product ids for backup
+save_product_id(product_ids)
 
+# product_ids = load_product_ids()
 # crawl detail for each product id
-product_list = crawl_product(book_ids)
+product_list = crawl_product(product_ids)
 
-# save product detail for backup
-save_raw_product(product_list)
+# # save product detail for backup
+# save_raw_product(product_list)
 
-product_list = load_raw_product()
-# flatten detail before converting to csv
-adjsust_product_list = [adjust_product(p) for p in product_list]
-# save product to csv
-save_product_list(adjsust_product_list)
+# product_list = load_raw_product()
+# # flatten detail before converting to csv
+# adjsust_product_list = [adjust_product(p) for p in product_list]
+# # save product to csv
+# save_product_list(adjsust_product_list)
