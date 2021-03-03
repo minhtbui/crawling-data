@@ -3,23 +3,24 @@ import json
 import requests
 import time
 
-# 9 - fiction & literature (2876)
-# 4 - business & eco products (789)
-# 27 - biography & memoir products (384)
+# 9 - fiction & literature (2880) - done
+# 4 - business & eco products (789) - done
+# 27 - biography & memoir products (384) - done
 # 320 - english products
 # 8322 - all books
 # 1815 - digital devices
-# 1801 = camera
+# 1801 = camera - done
 # 1846 = laptop - pc
 
-product_page_url = "https://tiki.vn/api/v2/products?category=27&page={}&limit=300"
+product_page_url = "https://tiki.vn/api/v2/products?category=320&page={}&limit=250"
 product_url = "https://tiki.vn/api/v2/products/{}"
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36'}
-product_ids_file = "./bio-memoir-english-book-id.txt"
-product_raw_data_file = "./bio-memoir-english-book.txt"
-product_file = "./bio-memoir-english-file.csv"
+
+product_ids_file = "./english-book-id.txt"
+product_raw_data_file = "./english-book.txt"
+product_file = "./english-file.csv"
 
 
 def jprint(obj):
@@ -103,11 +104,8 @@ def load_raw_product():
     return file.readlines()
 
 
-flatten_field = ["badges", "inventory", "url_attendant_input_form", "salable_type", "categories",
-                 "rating_summary", "data_version", "meta_title", "meta_description", "liked",
-                 "brand", "seller_specifications", "other_sellers", "configurable_options",
-                 "configurable_products", "product_links", "is_seller_in_chat_whitelist",
-                 "youtube", "services_and_promotions", "promotions", "installment_info"]
+flatten_field = ["book_cover", "badges", "inventory", "categories", "rating_summary", "images", "publisher", "authors", "seller_specification",
+                 "current_seller", "other_sellers", "specifications", "product_links", "services_and_promotions", "promotions", "stock_item"]
 
 
 def adjust_product(product):
@@ -156,7 +154,7 @@ product_list = crawl_product(product_ids)
 # # save product detail for backup
 save_raw_product(product_list)
 
-# product_list = load_raw_product()
+# # product_list = load_raw_product()
 # # flatten detail before converting to csv
 # adjsust_product_list = [adjust_product(p) for p in product_list]
 # # save product to csv
