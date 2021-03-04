@@ -12,13 +12,13 @@ import time
 # 1801 = camera - done
 # 1846 = laptop - pc
 
-product_page_url = "https://tiki.vn/api/v2/products?category=320&page={}&limit=250"
+product_page_url = "https://tiki.vn/api/v2/products?limit=48&include=advertisement&aggregations=1&trackity_id=c2e41caa-41af-1135-dda2-e7d853839306&category=9&page={}&src=c.320.hamburger_menu_fly_out_banner&urlKey=fiction-literature"
 product_url = "https://tiki.vn/api/v2/products/{}"
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36'}
 
-product_ids_file = "./english-book-id.txt"
+product_ids_file = "./fiction-literature-english-book-id.txt"
 product_raw_data_file = "./english-book.txt"
 product_file = "./english-file.csv"
 
@@ -53,7 +53,7 @@ def crawl_product_id():
 
         print("No. IDs: ", len(product_ids))
 
-        if (len(product_ids) > results['paging']['total']):
+        if (len(product_ids) >= results['paging']['total']):
             # if(page == 2):
             print('No more data !!! End here.')
             break
@@ -149,10 +149,10 @@ save_product_id(product_ids)
 
 # product_ids = load_product_ids()
 # crawl detail for each product id
-product_list = crawl_product(product_ids)
+# product_list = crawl_product(product_ids)
 
-# # save product detail for backup
-save_raw_product(product_list)
+# # # save product detail for backup
+# save_raw_product(product_list)
 
 # # product_list = load_raw_product()
 # # flatten detail before converting to csv
