@@ -18,8 +18,9 @@ product_url = "https://tiki.vn/api/v2/products/{}"
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36'}
 
-product_ids_file = "./fiction-literature-english-book-id.txt"
-product_raw_data_file = "./english-book.txt"
+product_ids_file = "./bio-memoir-english-book-id.txt"
+product_raw_data_file = "./bio-memoir-english-book.txt"
+product_raw_data_json = "./bio-memoir-english-book.json"
 product_file = "./english-file.csv"
 
 
@@ -80,9 +81,8 @@ def crawl_product(product_ids=[]):
     for product_id in product_ids:
         response = requests.get(
             product_url.format(product_id), headers=headers)
-
         if (response.status_code == 200):
-            product_detail_list.append(response.text)
+            product_detail_list.append(response.json())
             print("Crawl product: ", product_id,
                   ": ", response.status_code)
         else:
@@ -97,6 +97,14 @@ def save_raw_product(product_detail_list=[]):
     file.write("\n".join(product_detail_list))
     file.close()
     print("Save file: ", product_raw_data_file)
+
+
+def save_raw_product_json(product_detail_list=[]):
+    file = open(product_raw_data_json, "w+", encoding="utf-8")
+    file.write(json.dumps(product_detail_list, indent=4,
+                          ensure_ascii=False))
+    file.close()
+    print("Save file: ", product_raw_data_json)
 
 
 def load_raw_product():
@@ -138,21 +146,24 @@ def save_product_list(adjsust_product_list):
     print("Save file: ", product_file)
 
 
-# crawl product id
-product_ids, page = crawl_product_id()
+# # crawl product id
+# product_ids, page = crawl_product_id()
 
-print("No. Page: ", page)
-print("Total Products: ", len(product_ids))
+# print("No. Page: ", page)
+# print("Total Products: ", len(product_ids))
 
-# save product ids for backup
-save_product_id(product_ids)
+# # save product ids for backup
+# save_product_id(product_ids)
 
-# product_ids = load_product_ids()
+product_ids = load_product_ids()
 # crawl detail for each product id
-# product_list = crawl_product(product_ids)
+product_list = crawl_product(product_ids)
 
-# # # save product detail for backup
+# # save product detail for backup
 # save_raw_product(product_list)
+
+# save product detail as json file
+save_raw_product_json(product_list)
 
 # # product_list = load_raw_product()
 # # flatten detail before converting to csv
